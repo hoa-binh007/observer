@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <title>Hong Shot – Beobachtung</title>
+    <link rel="stylesheet" href="app.css" />
+  </head>
+
+  <body>
+    <header class="topbar">
+      <div class="topbar__left">
+        <div class="brand">Hong Shot</div>
+        <div class="sub">Beobachtung (offlinefähig via localStorage)</div>
+      </div>
+      <div class="topbar__right">
+        <button class="btn ghost" id="btnNew">Neu</button>
+        <button class="btn ghost" id="btnList">Liste</button>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <section class="card">
+        <div class="row">
+          <div class="field">
+            <label>Tester-ID</label>
+            <input id="testerId" placeholder="z. B. SG-034" inputmode="text" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label>Ort</label>
+            <div class="chips" id="placeChips">
+              <button class="chip" data-value="Café">Café</button>
+              <button class="chip" data-value="Straße">Straße</button>
+              <button class="chip" data-value="Markt">Markt</button>
+              <button class="chip" data-value="Büro">Büro</button>
+              <button class="chip" data-value="Privat">Privat</button>
+              <button class="chip" data-value="Sonstiges">Sonstiges</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="meta">
+          <div>
+            <div class="meta__label">Session-Start (Auto-Timestamp)</div>
+            <div class="meta__value" id="sessionStart">–</div>
+          </div>
+          <div>
+            <div class="meta__label">Letzter Klick</div>
+            <div class="meta__value" id="lastAction">–</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>1) Grunddaten (Schätzung)</h2>
+
+        <div class="grid3">
+          <div class="block">
+            <div class="block__title">Geschätztes Alter</div>
+            <div class="chips" data-group="age">
+              <button class="chip" data-value="<25">&lt;25</button>
+              <button class="chip" data-value="25-35">25–35</button>
+              <button class="chip" data-value="35-45">35–45</button>
+              <button class="chip" data-value="45-60">45–60</button>
+              <button class="chip" data-value="60+">60+</button>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="block__title">Wirkt wie</div>
+            <div class="chips" data-group="persona">
+              <button class="chip" data-value="Student/Azubi">Student/Azubi</button>
+              <button class="chip" data-value="Angestellt">Angestellt</button>
+              <button class="chip" data-value="Selbstständig">Selbstständig</button>
+              <button class="chip" data-value="Rentner">Rentner</button>
+              <button class="chip" data-value="Unklar">Unklar</button>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="block__title">Begleitung</div>
+            <div class="chips" data-group="company">
+              <button class="chip" data-value="Allein">Allein</button>
+              <button class="chip" data-value="Freunde">Freunde</button>
+              <button class="chip" data-value="Partner">Partner</button>
+              <button class="chip" data-value="Familie">Familie</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>2) Erscheinungsbild (sozialer Marker)</h2>
+
+        <div class="grid2">
+          <div class="block">
+            <div class="block__title">Kleidung</div>
+            <div class="chips" data-group="clothing">
+              <button class="chip" data-value="Einfach/Praktisch">Einfach</button>
+              <button class="chip" data-value="Durchschnittlich">Durchschnitt</button>
+              <button class="chip" data-value="Gepflegt/Marke">Marke</button>
+              <button class="chip" data-value="Hochwertig">Hochwertig</button>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="block__title">Zahlungsfähigkeit (Bauchgefühl)</div>
+            <div class="chips" data-group="afford">
+              <button class="chip" data-value="Sehr gering">Sehr gering</button>
+              <button class="chip" data-value="Gering">Gering</button>
+              <button class="chip" data-value="Mittel">Mittel</button>
+              <button class="chip" data-value="Hoch">Hoch</button>
+              <button class="chip" data-value="Sehr hoch">Sehr hoch</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>3) Mimik & erste Reaktion</h2>
+
+        <div class="grid2">
+          <div class="block">
+            <div class="block__title">Erste Reaktion</div>
+            <div class="chips" data-group="reaction">
+              <button class="chip" data-value="Neutral">Neutral</button>
+              <button class="chip" data-value="Positiv überrascht">Positiv</button>
+              <button class="chip" data-value="Neugierig">Neugierig</button>
+              <button class="chip" data-value="Skeptisch">Skeptisch</button>
+              <button class="chip" data-value="Ablehnend">Ablehnend</button>
+            </div>
+          </div>
+
+          <div class="block">
+            <div class="block__title">Vergleich (spontan)</div>
+            <div class="chips" data-group="compare">
+              <button class="chip" data-value="Kaffee">Kaffee</button>
+              <button class="chip" data-value="Energy Drink">Energy</button>
+              <button class="chip" data-value="Tee">Tee</button>
+              <button class="chip" data-value="Medizin">Medizin</button>
+              <button class="chip" data-value="Nichts davon">Nichts</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field grow">
+            <label>Erster Kommentar (1–2 Sätze)</label>
+            <textarea id="comment" rows="3" placeholder="z. B. 'Schmeckt stärker als Kaffee'"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>⏱️ Zeitmarker (für Synchronisation)</h2>
+        <div class="grid3">
+          <button class="btn big" id="btnFirstSip">Erster Schluck</button>
+          <button class="btn big" id="btnFirstComment">Erster Kommentar</button>
+          <button class="btn big danger" id="btnFinish">Beobachtung abschließen</button>
+        </div>
+        <div class="hint">
+          Tipp: Du kannst nur „patschen“. Jeder Button setzt sofort einen Zeitstempel in diesem Datensatz.
+        </div>
+      </section>
+
+      <section class="card" id="listView" hidden>
+        <h2>📦 Gespeicherte Beobachtungen (localStorage)</h2>
+
+        <div class="actions">
+          <button class="btn" id="btnExportJson">Export JSON</button>
+          <button class="btn" id="btnExportCsv">Export CSV</button>
+          <button class="btn danger" id="btnClearAll">Alles löschen</button>
+        </div>
+
+        <div id="records"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
