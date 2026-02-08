@@ -113,6 +113,7 @@ function wireChips() {
 function autosaveDraft() {
   state.current.tester_id = $("testerId").value.trim();
   state.current.first_comment = $("comment").value.trim();
+  state.current.notes = $("miscNotes").value.trim();
 }
 
 function validateMinimal() {
@@ -152,12 +153,14 @@ function renderList() {
   const all = loadAll().slice().reverse();
   const wrap = $("records");
   wrap.innerHTML = "";
+  
 
   if (all.length === 0) {
     wrap.innerHTML = `<div class="kv">Noch keine Beobachtungen gespeichert.</div>`;
     return;
   }
 
+  
   all.forEach((rec) => {
     const div = document.createElement("div");
     div.className = "rec";
@@ -171,6 +174,8 @@ function renderList() {
       <div class="kv">Start: ${escapeHtml(rec.session_start || "—")}</div>
       <div class="kv">Finish: ${escapeHtml(rec.ts_finish || "—")}</div>
       <div class="kv">Ort: ${escapeHtml(rec.place || "—")}</div>
+      ${rec.notes ? `<div class="kv">Notiz: ${escapeHtml(rec.notes)}</div>` : ""}
+
     `;
 
     const right = document.createElement("div");
@@ -256,6 +261,8 @@ function exportCsv() {
     "reaction",
     "compare",
     "first_comment",
+    "notes"   // 👈 NEU
+
   ];
 
   const lines = [];
@@ -285,6 +292,8 @@ function wireInputs() {
   $("comment").addEventListener("input", () => {
     autosaveDraft();
   });
+  state.current.notes = $("miscNotes").value.trim();
+
 }
 
 function wireTopbar() {
