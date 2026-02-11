@@ -3,8 +3,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/fireba
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
 
 const FIREBASE_CONFIG = {
-  databaseURL: "https://rote-ginseng-vn-default-rtdb.europe-west1.firebasedatabase.app/",
+  apiKey: "...",
+  authDomain: "...firebaseapp.com",
+  databaseURL: "https://rote-ginseng-vn-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "rote-ginseng-vn",
+  appId: "...",
 };
+
 
 // --------------------------------------------------
 
@@ -19,6 +24,7 @@ const state = {
     age: null,
     persona: null,
     company: null,
+
     clothing: null,
     afford: null,
     reaction: null,
@@ -412,4 +418,16 @@ function init() {
   fallbackPollLocalStorage();
 }
 
-init();
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    init();
+  } catch (e) {
+    console.error("[Observer] init crashed:", e);
+    alert("Observer-Fehler: " + (e?.message || e));
+  }
+});
+
+
+
+
+

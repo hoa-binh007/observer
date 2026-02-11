@@ -116,7 +116,7 @@
         </div>
       </section>
 
-      <section class="card">
+          <section class="card">
         <h2>3) Mimik & erste Reaktion</h2>
 
         <div class="grid2">
@@ -143,21 +143,21 @@
           </div>
         </div>
 
-        <section class="card">
-            <h2>📝 Sonstiges / Freie Beobachtung</h2>
+        <!-- war vorher: <section class="card"> ... -->
+        <div class="block" style="margin-top:16px;">
+          <div class="block__title">📝 Sonstiges / Freie Beobachtung</div>
 
-            <div class="row">
-                <div class="field grow">
-                <label>Freies Notizfeld (optional)</label>
-                <textarea
-                    id="miscNotes"
-                    rows="4"
-                    placeholder="z. B. sehr in Eile, telefoniert dabei, fragt nach Preis für Familie, Sonderreaktion, etc."
-                ></textarea>
-                </div>
+          <div class="row">
+            <div class="field grow">
+              <label>Freies Notizfeld (optional)</label>
+              <textarea
+                id="miscNotes"
+                rows="4"
+                placeholder="z. B. sehr in Eile, telefoniert dabei, fragt nach Preis für Familie, Sonderreaktion, etc."
+              ></textarea>
             </div>
-        </section>
-
+          </div>
+        </div>
 
         <div class="row">
           <div class="field grow">
@@ -166,6 +166,10 @@
           </div>
         </div>
       </section>
+  
+
+
+        
 
       <section class="card">
         <h2>⏱️ Zeitmarker (für Synchronisation)</h2>
@@ -192,6 +196,6 @@
       </section>
     </main>
 
-    <script src="app.js"></script>
+    <script type="module" src="app.js"></script>
   </body>
 </html>
