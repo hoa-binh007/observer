@@ -1,3 +1,13 @@
+// --- Firebase live ID listener (minimal add-on) ---
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-database.js";
+
+const FIREBASE_CONFIG = {
+  databaseURL: "https://rote-ginseng-vn-default-rtdb.europe-west1.firebasedatabase.app/",
+};
+
+// --------------------------------------------------
+
 const STORAGE_KEY = "hongshot_observations_v1";
 
 const $ = (id) => document.getElementById(id);
@@ -13,6 +23,10 @@ const state = {
     afford: null,
     reaction: null,
     compare: null,
+  },
+  live: {
+    city: "SG",        // Default für Start Saigon
+    lastId: null,
   },
 };
 
@@ -37,12 +51,25 @@ function setLastAction(text) {
 }
 
 function newSession() {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+  const now = new Date();
+
   state.current = {
-    id: crypto?.randomUUID ? crypto.randomUUID() : `id_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+    id: crypto?.randomUUID
+      ? crypto.randomUUID()
+      : `id_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+
     tester_id: "",
     place: null,
 
+    // bestehend (UTC, maschinenlesbar)
     session_start: nowIso(),
+
+    // 🔥 NEU – lokal & menschlich
+    timezone: tz,                              // z.B. "Asia/Bangkok"
+    session_start_local: now.toLocaleString(), // lokale Anzeige
+    tz_offset_min: -now.getTimezoneOffset(),   // Bangkok = 420
+
     ts_first_sip: null,
     ts_first_comment: null,
     ts_finish: null,
@@ -64,12 +91,13 @@ function newSession() {
 
   $("testerId").value = "";
   $("comment").value = "";
-  $("sessionStart").textContent = state.current.session_start;
+  $("sessionStart").textContent = state.current.session_start_local;
   $("lastAction").textContent = "–";
 
   deactivateAllChips();
   setLastAction("Neu gestartet");
 }
+
 
 function deactivateAllChips() {
   document.querySelectorAll(".chip").forEach((b) => b.classList.remove("active"));
@@ -111,14 +139,14 @@ function wireChips() {
 }
 
 function autosaveDraft() {
-  state.current.tester_id = $("testerId").value.trim();
-  state.current.first_comment = $("comment").value.trim();
-  state.current.notes = $("miscNotes").value.trim();
+  state.current.tester_id = ($("testerId").value || "").trim();
+  state.current.first_comment = ($("comment").value || "").trim();
+  state.current.notes = ($("miscNotes").value || "").trim();
 }
 
 function validateMinimal() {
-  const tid = $("testerId").value.trim();
-  if (!tid) return { ok: false, msg: "Bitte Tester-ID eintragen (z. B. SG-034)." };
+  const tid = ($("testerId").value || "").trim();
+  if (!tid) return { ok: false, msg: "Bitte Tester-ID eintragen (z. B. SG-0001)." };
   return { ok: true };
 }
 
@@ -153,14 +181,12 @@ function renderList() {
   const all = loadAll().slice().reverse();
   const wrap = $("records");
   wrap.innerHTML = "";
-  
 
   if (all.length === 0) {
     wrap.innerHTML = `<div class="kv">Noch keine Beobachtungen gespeichert.</div>`;
     return;
   }
 
-  
   all.forEach((rec) => {
     const div = document.createElement("div");
     div.className = "rec";
@@ -175,7 +201,6 @@ function renderList() {
       <div class="kv">Finish: ${escapeHtml(rec.ts_finish || "—")}</div>
       <div class="kv">Ort: ${escapeHtml(rec.place || "—")}</div>
       ${rec.notes ? `<div class="kv">Notiz: ${escapeHtml(rec.notes)}</div>` : ""}
-
     `;
 
     const right = document.createElement("div");
@@ -261,8 +286,7 @@ function exportCsv() {
     "reaction",
     "compare",
     "first_comment",
-    "notes"   // 👈 NEU
-
+    "notes",
   ];
 
   const lines = [];
@@ -286,14 +310,9 @@ function showList(show) {
 }
 
 function wireInputs() {
-  $("testerId").addEventListener("input", () => {
-    autosaveDraft();
-  });
-  $("comment").addEventListener("input", () => {
-    autosaveDraft();
-  });
-  state.current.notes = $("miscNotes").value.trim();
-
+  $("testerId").addEventListener("input", autosaveDraft);
+  $("comment").addEventListener("input", autosaveDraft);
+  $("miscNotes").addEventListener("input", autosaveDraft); // ✅ FIX: Notizen richtig live speichern
 }
 
 function wireTopbar() {
@@ -324,6 +343,61 @@ function wireExports() {
   };
 }
 
+// --- Live Tester-ID Empfang ---
+function inferCityFromTesterId(tid) {
+  const m = String(tid || "").trim().match(/^([A-Z]{2})-/);
+  return m ? m[1] : "SG";
+}
+
+function setTesterIdFromLive(tid, sourceLabel) {
+  const incoming = String(tid || "").trim();
+  if (!incoming) return;
+
+  // optional: city automatisch nachführen
+  state.live.city = inferCityFromTesterId(incoming);
+
+  if ($("testerId").value.trim() === incoming) return;
+
+  $("testerId").value = incoming;
+  autosaveDraft();
+  setLastAction(`${sourceLabel}: ${incoming}`);
+  state.live.lastId = incoming;
+}
+
+function startFirebaseListener() {
+  try {
+    const fbApp = initializeApp(FIREBASE_CONFIG);
+    const db = getDatabase(fbApp);
+
+    const city = state.live.city || "SG";
+    const liveRef = ref(db, `live/${city}/currentTesterId`);
+
+    onValue(liveRef, (snap) => {
+      const v = snap.val();
+      if (!v || !v.tester_id) return;
+      setTesterIdFromLive(v.tester_id, "LIVE ID");
+      // Offline fallback auch aktualisieren
+      localStorage.setItem(`liveTesterId_${city}`, String(v.tester_id));
+    });
+
+    setLastAction(`LIVE Listener aktiv (${city})`);
+  } catch (e) {
+    console.warn("Firebase listener failed, fallback to localStorage", e);
+  }
+}
+
+function fallbackPollLocalStorage() {
+  // falls Firebase nicht verfügbar ist, alle 2s schauen ob Survey in localStorage was abgelegt hat
+  setInterval(() => {
+    const city = state.live.city || "SG";
+    const tid = localStorage.getItem(`liveTesterId_${city}`);
+    if (tid && tid !== state.live.lastId) {
+      setTesterIdFromLive(tid, "LOCAL ID");
+    }
+  }, 2000);
+}
+// -----------------------------
+
 function init() {
   wireChips();
   wireInputs();
@@ -333,6 +407,9 @@ function init() {
 
   newSession();
   showList(false);
+
+  startFirebaseListener();
+  fallbackPollLocalStorage();
 }
 
 init();
